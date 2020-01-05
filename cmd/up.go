@@ -30,6 +30,8 @@ const secretMountDir = "/run/secrets"
 
 func runUp(_ *cobra.Command, _ []string) error {
 
+	wd, _ := os.Getwd()
+
 	clientArch, clientOS := env.GetClientArch()
 
 	if clientOS != "Linux" {
@@ -53,7 +55,7 @@ func runUp(_ *cobra.Command, _ []string) error {
 		return errors.Wrap(basicAuthErr, "cannot create basic-auth-* files")
 	}
 
-	services := makeServiceDefinitions(clientSuffix)
+	services := makeServiceDefinitions(wd, clientSuffix)
 
 	start := time.Now()
 	supervisor, err := pkg.NewSupervisor("/run/containerd/containerd.sock")
@@ -168,8 +170,7 @@ func makeFile(filePath, fileContents string) error {
 	}
 }
 
-func makeServiceDefinitions(archSuffix string) []pkg.Service {
-	wd, _ := os.Getwd()
+func makeServiceDefinitions(wd, archSuffix string) []pkg.Service {
 
 	return []pkg.Service{
 		pkg.Service{
